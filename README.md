@@ -29,12 +29,12 @@ docker run \
   -e POSTGRES_HOST_AUTH_METHOD=trust \
   -e POSTGRES_USER=user \
   -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=dbname \
+  -e POSTGRES_DB=sqli \
   -p 54325:5432 \
-  postgres:12.5-alpine
+  diegoall1990/sqli-pg-db
 ```
-    docker exec -it security-dbs -U user dbname
-    docker exec -it sqli-eafit psql -U postgres -d sqli
+
+    docker exec -it postgres_sqli_eafit psql -U postgres -d sqli
 
 
 ## SQL injection scenario
