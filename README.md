@@ -60,9 +60,9 @@ Compliant code
     localhost:9090/users?id=46' OR ''='
 
 
-## Docs
+## API collection
 
-There are environment and collection for Postman in docs folder to facilitate play with API.
+You can find the API collections [here](SQL-Injection-EAFIT.postman_collection.json)
 
 
 
