@@ -11,6 +11,13 @@ jobs:
     name: Build, Deploy and Run DAST
     runs-on: ubuntu-latest
 
+    env:  # <- Aquí agregamos los secrets como variables de entorno
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      DSN: ${{ secrets.DSN }}
+      BINARY_NAME: ${{ secrets.BINARY_NAME }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
