@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build_and_scan:
     name: Build and Start Docker Compose
     runs-on: ubuntu-latest
 
@@ -24,30 +24,17 @@ jobs:
       - name: Build and Start containers
         run: |
           docker-compose up --build -d
-          sleep 10  # esperamos que levante DB y API
+          sleep 15  # esperamos que levante DB y API
 
-  dast_zap:
-    name: OWASP ZAP Baseline Scan
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install docker-compose
+      - name: Run OWASP ZAP scan inside container
         run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose version
+          docker exec zap-scanner zap-baseline.py -t http://api:9090 -r zap-report.html -f openapi -I || true
 
-      - name: Build and Start containers again
-        run: |
-          docker-compose up --build -d
-          sleep 10
-
-      - name: Run OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.10.0
+      - name: Upload ZAP report
+        uses: actions/upload-artifact@v3
         with:
-          target: 'http://localhost:9090'
-          fail_action: false
+          name: ZAP Report
+          path: zap-report.html
+
+      - name: Stop and Clean containers
+        run: docker-compose down
