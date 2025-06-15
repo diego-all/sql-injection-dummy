@@ -31,11 +31,30 @@ jobs:
       - name: Build and Start containers
         run: |
           docker-compose up --build -d
-          sleep 20  # esperamos que levante DB y API
+          # Mejoramos la espera para que la API esté realmente lista
+          echo "Waiting for API to be ready..."
+          for i in $(seq 1 60); do # Intentamos por hasta 60 segundos (ajusta según sea necesario)
+            # Usamos curl para verificar la conectividad con la API
+            if curl -s http://localhost:9090 > /dev/null; then
+              echo "API is ready!"
+              break
+            fi
+            echo "API not ready yet, waiting 1 second..."
+            sleep 1
+          done
+          # Verificamos si la API realmente se levantó, si no, fallamos el workflow
+          if ! curl -s http://localhost:9090 > /dev/null; then
+            echo "API did not become ready in time. Exiting."
+            exit 1
+          fi
 
       - name: Run OWASP ZAP Baseline Scan
         run: |
-          docker exec zap-scanner zap-baseline.py -t http://api:9090 -r zap-report.html -I || true
+          # Ejecutamos el escaneo dentro del contenedor ZAP
+          # El reporte se guardará en /zap/wrk/zap-report.html DENTRO del contenedor
+          docker exec zap-scanner zap-baseline.py -t http://api:9090 -r /zap/wrk/zap-report.html -I || true
+          # Copiamos el reporte del contenedor al workspace del runner
+          docker cp zap-scanner:/zap/wrk/zap-report.html ./zap-report.html
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
