@@ -124,7 +124,9 @@ Compliant code
 You can find the API collections [here](SQL-Injection-EAFIT.postman_collection.json)
 
 
-
+          docker exec zap-scanner zap-baseline.py -t http://api:9090 -r zap-report.html -f openapi -I || true
+          
+          docker exec zap-scanner zap-baseline.py -t http://api:9090 -r zap-report.html -I || true
 
 
 
