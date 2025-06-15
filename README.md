@@ -7,6 +7,7 @@ API written in Golang with SQL injection vulnerability and level code mitigation
     docker-compose up -d
     docker-compose down
     docker-compose down -v --rmi all
+    docker-compose up --build -d
 
     CURRENT_UID=$(id -u):$(id -g) docker-compose up (colima in Mac OS)
 

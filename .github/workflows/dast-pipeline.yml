@@ -17,7 +17,7 @@ jobs:
 
       - name: Build and Start containers
         run: |
-          docker-compose up -d
+          docker-compose up --build -d
           sleep 10  # esperamos que levante DB y API
 
   cherrybomb:
@@ -45,7 +45,7 @@ jobs:
 
       - name: Build and Start containers again
         run: |
-          docker-compose up -d
+          docker-compose up --build -d
           sleep 10
 
       - name: Run OWASP ZAP Baseline Scan
