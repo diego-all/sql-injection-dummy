@@ -26,22 +26,6 @@ jobs:
           docker-compose up --build -d
           sleep 10  # esperamos que levante DB y API
 
-  cherrybomb:
-    name: Cherrybomb OpenAPI Spec Validation
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Run Cherrybomb via Docker
-        run: |
-          docker run --rm -v ${{ github.workspace }}/notes/docs:/docs ghcr.io/blst-security/cherrybomb:latest \
-            --file /docs/swagger.yaml \
-            --no-fail
-
-
   dast_zap:
     name: OWASP ZAP Baseline Scan
     runs-on: ubuntu-latest
@@ -50,6 +34,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install docker-compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
 
       - name: Build and Start containers again
         run: |
