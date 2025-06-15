@@ -37,3 +37,15 @@ services:
     deploy:
      mode: replicated
      replicas: 1
+
+  api:
+    build:
+      context: .
+      dockerfile: ./cmd/api/Dockerfile
+    container_name: golang_api_sqli
+    ports:
+      - "9090:9090"
+    depends_on:
+      - postgres_sqli
+    environment:
+      - DSN=host=postgres_sqli port=5432 user=postgres password=password dbname=sqli sslmode=disable timezone=UTC connect_timeout=5

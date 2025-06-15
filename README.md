@@ -6,6 +6,7 @@ API written in Golang with SQL injection vulnerability and level code mitigation
 
     docker-compose up -d
     docker-compose down
+    docker-compose down -v --rmi all
 
     CURRENT_UID=$(id -u):$(id -g) docker-compose up (colima in Mac OS)
 
@@ -98,6 +99,9 @@ curl -X DELETE "localhost:9090/vulnerable/users?id='16'OR'1'='1'"
 DELETE http://localhost:8080/users/correct?id=5 HTTP/1.1
 content-type: application/json
 
+
+
+docker-compose down -v --rmi all
 
 
 ESCAPAR UNA COMILLA SIMPLE.
