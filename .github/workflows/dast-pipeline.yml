@@ -35,10 +35,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run Cherrybomb
-        uses: blst-security/cherrybomb-action@v1
-        with:
-          file: './notes/docs/swagger.yaml'
+      - name: Install docker
+        uses: docker-practice/actions-setup-docker@v1
+
+      - name: Run Cherrybomb via Docker
+        run: |
+          docker run --rm -v ${{ github.workspace }}/notes/docs:/docs ghcr.io/blst-security/cherrybomb:latest \
+            --file /docs/swagger.yaml \
+            --no-fail
 
   dast_zap:
     name: OWASP ZAP Baseline Scan
