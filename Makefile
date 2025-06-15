@@ -1,5 +1,5 @@
 #DSN="host=localhost port=54325 user=postgres password=password dbname=sqli sslmode=disable timezone=UTC connect_timeout=5"
-DSN="host=localhost port=54325 user=postgres password=password dbname=sqli sslmode=disable timezone=UTC connect_timeout=5"
+DSN="host=localhost port=54327 user=postgres password=password dbname=sqli sslmode=disable timezone=UTC connect_timeout=5"
 BINARY_NAME=sqli-eafit
 
 ## build: Build binary

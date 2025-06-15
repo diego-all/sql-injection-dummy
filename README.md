@@ -7,7 +7,12 @@ API written in Golang with SQL injection vulnerability and level code mitigation
     docker-compose up -d
     docker-compose down
 
-    CURRENT_UID=$(id -u):$(id -g) docker-compose up (colima in Mac OS) 
+    CURRENT_UID=$(id -u):$(id -g) docker-compose up (colima in Mac OS)
+
+##
+
+    DSN="host=localhost port=54327 user=postgres password=password dbname=sqli sslmode=disable timezone=UTC connect_timeout=5" go run ./cmd/api
+
 
 ## Run API with Makefile (Development environment)
 
@@ -35,6 +40,7 @@ docker run \
 ```
 
     docker exec -it postgres_sqli_eafit psql -U postgres -d sqli
+    docker exec -it linux_postgres_sqli_eafit psql -U postgres -d sqli
 
 
 ## SQL injection scenario
@@ -54,6 +60,54 @@ Error based sql Injection
 Non Compliant code
 
     localhost:9090/vulnerable/users?id=17' OR ''='
+
+    curl -k localhost:9090/vulnerable/users?id=16' OR ''='
+
+    curl -X DELETE "localhost:9090/vulnerable/users?id=16'"
+
+    curl -X DELETE "localhost:9090/vulnerable/users?id=16'"
+
+
+
+## FindUser with SQL Injection
+GET http://localhost:8080/users?id='1'OR'1'='1' HTTP/1.1
+content-type: application/json
+
+###
+
+## FindUser correct
+GET http://localhost:8080/users/correct?id=2 HTTP/1.1
+content-type: application/json
+
+###
+
+## DeleteUser with SQL Injection
+DELETE http://localhost:8080/users?id='1'OR'1'='1' HTTP/1.1
+content-type: application/json
+                
+                localhost:9090/vulnerable/users?id=3' OR ''='
+                localhost:9090/vulnerable/users?id=17' OR ''='
+curl -X DELETE "localhost:9090/vulnerable/users?id='16'OR'1'='1' NO
+curl -X DELETE "localhost:9090/vulnerable/users?id=16' OR ''='
+
+curl -X DELETE "localhost:9090/vulnerable/users?id='16'OR'1'='1'" 
+
+###
+
+## DeleteUser correct
+DELETE http://localhost:8080/users/correct?id=5 HTTP/1.1
+content-type: application/json
+
+
+
+ESCAPAR UNA COMILLA SIMPLE.
+
+EScapar comillas
+
+Payload codificado
+percent-encoding (URL encoding)
+curl -X DELETE "http://localhost:9090/vulnerable/users?id=3%27%20OR%20%27%27=%27"  SI FUNCIONO
+curl -X DELETE localhost:9090/vulnerable/users?id=3%27%20OR%20%27%27=%27  SI FUNCIONO
 
 Compliant code
 

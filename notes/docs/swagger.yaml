@@ -1,0 +1,115 @@
+openapi: 3.0.0
+info:
+  title: Product API
+  version: 1.0.0
+  description: Una API REST para la gestión de productos, incluyendo funcionalidades para salud y eliminación de usuarios.
+
+servers:
+  - url: http://localhost:8080 # Puedes cambiar esto por la URL de tu API
+    description: Servidor de desarrollo
+
+paths:
+  /health:
+    get:
+      summary: Comprueba el estado de salud de la API.
+      description: Este endpoint devuelve 'pong' si la API está en funcionamiento.
+      operationId: healthCheck
+      responses:
+        '200':
+          description: API en funcionamiento.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+        '500':
+          description: Error interno del servidor.
+
+  /delete-user-sqli:
+    get: # Se usa GET porque el handler recupera 'id' de r.URL.Query()
+      summary: Elimina un usuario (ejemplo con vulnerabilidad SQLi).
+      description: |
+        Este endpoint intenta eliminar un usuario por su ID.
+        **Advertencia:** Este handler está marcado como `DeleteUserSQLi`, lo que sugiere una vulnerabilidad intencional de inyección SQL.
+        No usar en producción sin las mitigaciones adecuadas.
+      operationId: deleteUserSQLi
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+          required: true
+          description: El ID del usuario a eliminar.
+          example: "123"
+      responses:
+        '200':
+          description: Respuesta de la operación de eliminación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonResponse'
+              examples:
+                success:
+                  summary: Eliminación exitosa
+                  value:
+                    error: false
+                    message: "User deleted correctly"
+                failure:
+                  summary: Fallo en la eliminación
+                  value:
+                    error: true
+                    message: "Couldn't delete user"
+        '500':
+          description: Error interno del servidor.
+
+  /delete-user:
+    get: # Se usa GET porque el handler recupera 'id' de r.URL.Query()
+      summary: Elimina un usuario.
+      description: Este endpoint elimina un usuario de forma segura por su ID.
+      operationId: deleteUser
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+          required: true
+          description: El ID del usuario a eliminar.
+          example: "456"
+      responses:
+        '200':
+          description: Respuesta de la operación de eliminación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonResponse'
+              examples:
+                success:
+                  summary: Eliminación exitosa
+                  value:
+                    error: false
+                    message: "User deleted correctly"
+                failure:
+                  summary: Fallo en la eliminación
+                  value:
+                    error: true
+                    message: "Couldn't delete user"
+        '500':
+          description: Error interno del servidor.
+
+components:
+  schemas:
+    JsonResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          description: Indica si hubo un error en la respuesta.
+          example: false
+        message:
+          type: string
+          description: Un mensaje descriptivo de la respuesta.
+          example: "User deleted correctly"
+        data:
+          type: object
+          description: Datos adicionales (opcional).
+          nullable: true
