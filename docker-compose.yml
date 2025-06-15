@@ -60,7 +60,7 @@ services:
       - zapnet
 
   zap:
-    image: ghcr.io/zaproxy/zap-stable
+    image: securecodebox/zap:latest
     container_name: zap-scanner
     depends_on:
       - api
