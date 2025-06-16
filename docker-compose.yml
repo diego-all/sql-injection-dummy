@@ -1,10 +1,5 @@
 version: '3.9'
 
-
-networks:
-  zapnet:  # Red dedicada para el escaneo
-    driver: bridge
-
 services:
   # Start Postgres, and ensure that data is stored to a mounted volume
 
@@ -37,8 +32,6 @@ services:
     volumes:
       #- ./db-data/postgres/:/var/lib/postgresql/data/
       - ./db-data/postgres/:/var/lib/postgresql/data/:rw
-    networks:
-      - zapnet
 
 # Deployment artifacts
     deploy:
@@ -56,18 +49,3 @@ services:
       - postgres_sqli
     environment:
       - DSN=host=postgres_sqli port=5432 user=postgres password=password dbname=sqli sslmode=disable timezone=UTC connect_timeout=5
-    networks:
-      - zapnet
-
-  # zap:
-  #   #image: securecodebox/zap:latest
-  #   #image: mbagliojr/zap2docker
-  #   image: ictu/zap2docker-weekly
-  #   container_name: zap-scanner
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - zapnet
-  #   entrypoint: ["tail", "-f", "/dev/null"]
-  #   volumes:
-  #     - ./zap-reports:/zap/wrk # <--- ¡Asegúrate de que esta línea esté activa y correcta!
