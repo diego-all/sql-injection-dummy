@@ -59,11 +59,15 @@ services:
     networks:
       - zapnet
 
-  zap:
-    image: securecodebox/zap:latest
-    container_name: zap-scanner
-    depends_on:
-      - api
-    networks:
-      - zapnet
-    entrypoint: ["sleep", "infinity"]
+  # zap:
+  #   #image: securecodebox/zap:latest
+  #   #image: mbagliojr/zap2docker
+  #   image: ictu/zap2docker-weekly
+  #   container_name: zap-scanner
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - zapnet
+  #   entrypoint: ["tail", "-f", "/dev/null"]
+  #   volumes:
+  #     - ./zap-reports:/zap/wrk # <--- ¡Asegúrate de que esta línea esté activa y correcta!

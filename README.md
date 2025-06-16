@@ -137,8 +137,16 @@ You can find the API collections [here](SQL-Injection-EAFIT.postman_collection.j
 
 https://hub.docker.com/r/securecodebox/zap
 
+securecodebox/zap:latest
 
 
+mbagliojr/zap2docker
+
+17905 [ZAP-daemon] ERROR org.zaproxy.zap.ZAP$UncaughtExceptionLogger  - Exception in thread "ZAP-daemon"
+java.lang.UnsupportedClassVersionError: org/zaproxy/addon/commonlib/ExtensionCommonlib has been compiled by a more recent version of the Java Runtime (class file version 61.0), this version of the Java Runtime only recognizes class file versions up to 52.0
+
+
+La imagen mbagliojr/zap2docker es muy antigua y utiliza Java 8, mientras que muchas partes de ZAP y sus addons más recientes requieren Java 11 o superior. Incluso si logras ejecutarla sin intentar actualizar, es casi seguro que el mismo error de UnsupportedClassVersionError volverá a aparecer, porque las dependencias internas de ZAP están compiladas para una versión de Java más reciente.
 
 
 

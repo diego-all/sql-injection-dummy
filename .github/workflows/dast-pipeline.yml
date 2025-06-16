@@ -47,20 +47,36 @@ jobs:
             echo "API did not become ready in time. Exiting."
             exit 1
           fi
+          
+# SE PROBO CON VARIAS IMAGENES Y FUNCIONA DEBE ACOMODARSE!!! ZAP
 
-      - name: Run OWASP ZAP Baseline Scan
-        run: |
-          # Ejecutamos el escaneo dentro del contenedor ZAP
-          # El reporte se guardará en /zap/wrk/zap-report.html DENTRO del contenedor
-          docker exec zap-scanner zap-baseline.py -t http://api:9090 -r /zap/wrk/zap-report.html -I || true
-          # Copiamos el reporte del contenedor al workspace del runner
-          docker cp zap-scanner:/zap/wrk/zap-report.html ./zap-report.html
+  sonarcloud_scan:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    needs: build_and_scan
 
-      - name: Upload ZAP report
-        uses: actions/upload-artifact@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          name: ZAP Report
-          path: zap-report.html
+          java-version: '17'
+          distribution: 'temurin'
 
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Run SonarCloud analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          organization: xast
+          projectKey: xast_sql-injection
+          token: ${{ secrets.SONAR_TOKEN }}
       - name: Stop and Clean containers
         run: docker-compose down -v --rmi all
