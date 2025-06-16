@@ -15,7 +15,7 @@ services:
     image: 'diegoall1990/linux-sqli-pg-db:0.0.1'
     container_name: linux_postgres_sqli_eafit
     ports:
-      - "54327:5432"
+      - "5432:5432"
     restart: always
 
     environment:
