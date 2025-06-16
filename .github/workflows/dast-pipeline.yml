@@ -11,7 +11,7 @@ jobs:
     name: Build, Deploy and Run DAST
     runs-on: ubuntu-latest
 
-    env:  # <- Aquí agregamos los secrets como variables de entorno
+    env:
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
@@ -31,10 +31,9 @@ jobs:
       - name: Build and Start containers
         run: |
           docker-compose up --build -d
-          # Mejoramos la espera para que la API esté realmente lista
           echo "Waiting for API to be ready..."
-          for i in $(seq 1 60); do # Intentamos por hasta 60 segundos (ajusta según sea necesario)
-            # Usamos curl para verificar la conectividad con la API
+          # Aumentamos el tiempo de espera a 90 segundos para dar más margen
+          for i in $(seq 1 90); do # Cambiado de 60 a 90 segundos
             if curl -s http://localhost:9090 > /dev/null; then
               echo "API is ready!"
               break
@@ -45,10 +44,12 @@ jobs:
           # Verificamos si la API realmente se levantó, si no, fallamos el workflow
           if ! curl -s http://localhost:9090 > /dev/null; then
             echo "API did not become ready in time. Exiting."
+            # --- AGREGADO PARA DEPURACIÓN: MOSTRAR LOGS DEL CONTENEDOR DE LA API ---
+            echo "--- Logs del contenedor golang_api_sqli ---"
+            docker logs golang_api_sqli
+            # --- FIN DE AGREGADO ---
             exit 1
           fi
-          
-# SE PROBO CON VARIAS IMAGENES Y FUNCIONA DEBE ACOMODARSE!!! ZAP
 
   sonarcloud_scan:
     name: SonarCloud Scan
@@ -79,4 +80,6 @@ jobs:
           projectKey: xast_sql-injection
           token: ${{ secrets.SONAR_TOKEN }}
       - name: Stop and Clean containers
+        # Aseguramos que el docker-compose down se ejecute incluso si SonarCloud falla
+        if: always()
         run: docker-compose down -v --rmi all
