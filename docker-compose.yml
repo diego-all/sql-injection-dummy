@@ -38,6 +38,15 @@ services:
      mode: replicated
      replicas: 1
 
+    # --- AGREGAR HEALTHCHECK PARA POSTGRES ---
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10 # Intentar 10 veces (50 segundos en total)
+      start_period: 30s # Darle a Postgres 30 segundos para iniciar antes de empezar a chequear
+    # --- FIN HEALTHCHECK ---
+
   api:
     build:
       context: .
@@ -45,8 +54,11 @@ services:
     container_name: golang_api_sqli
     ports:
       - "9090:9090"
+    # --- MODIFICAR depends_on para esperar el healthcheck ---
     depends_on:
-      - postgres_sqli
+      postgres_sqli:
+        condition: service_healthy # Esperar a que postgres_sqli esté marcado como 'healthy'
+    # --- FIN MODIFICACIÓN ---
     environment:
       - DSN=${DSN}
       # - DSN=host=postgres_sqli port=5432 user=postgres password=password dbname=sqli sslmode=disable timezone=UTC connect_timeout=5
