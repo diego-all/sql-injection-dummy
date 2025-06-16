@@ -48,4 +48,5 @@ services:
     depends_on:
       - postgres_sqli
     environment:
-      - DSN=host=postgres_sqli port=5432 user=postgres password=password dbname=sqli sslmode=disable timezone=UTC connect_timeout=5
+      - DSN=${DSN}
+      # - DSN=host=postgres_sqli port=5432 user=postgres password=password dbname=sqli sslmode=disable timezone=UTC connect_timeout=5
