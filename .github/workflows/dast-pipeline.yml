@@ -32,8 +32,7 @@ jobs:
         run: |
           docker-compose up --build -d
           echo "Waiting for API to be ready..."
-          # Aumentamos el tiempo de espera a 90 segundos para dar más margen
-          for i in $(seq 1 90); do # Cambiado de 60 a 90 segundos
+          for i in $(seq 1 90); do
             if curl -s http://localhost:9090 > /dev/null; then
               echo "API is ready!"
               break
@@ -41,24 +40,29 @@ jobs:
             echo "API not ready yet, waiting 1 second..."
             sleep 1
           done
-          # Verificamos si la API realmente se levantó, si no, fallamos el workflow
           if ! curl -s http://localhost:9090 > /dev/null; then
             echo "API did not become ready in time. Exiting."
-            # --- AGREGADO PARA DEPURACIÓN: MOSTRAR LOGS DEL CONTENEDOR DE LA API ---
             echo "--- Logs del contenedor golang_api_sqli ---"
             docker logs golang_api_sqli
-            # --- FIN DE AGREGADO ---
             exit 1
           fi
 
   sonarcloud_scan:
     name: SonarCloud Scan
     runs-on: ubuntu-latest
-    needs: build_and_scan
+    needs: build_and_scan # Asegura que este job se ejecute solo si 'build_and_scan' fue exitoso
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # --- NUEVO: Instalar docker-compose en este job también ---
+      - name: Install docker-compose for clean-up
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
+      # --- FIN NUEVO ---
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -73,13 +77,14 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
+      # --- MODIFICACIÓN CLAVE PARA SONARCLOUD ---
       - name: Run SonarCloud analysis
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          organization: xast
-          projectKey: xast_sql-injection
-          token: ${{ secrets.SONAR_TOKEN }}
+        uses: SonarSource/sonarqube-scan-action@v5.0.0 # Usar la acción recomendada
+        # Ya NO se pasan inputs aquí, se usa sonar-project.properties y env
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Pasar el token como variable de entorno al paso
+      # --- FIN MODIFICACIÓN ---
+
       - name: Stop and Clean containers
-        # Aseguramos que el docker-compose down se ejecute incluso si SonarCloud falla
-        if: always()
+        if: always() # Esto asegura que siempre se intenten limpiar los contenedores
         run: docker-compose down -v --rmi all
