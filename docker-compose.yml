@@ -13,7 +13,7 @@ services:
     # Assign the image or build the image on development process
     #image: 'diegoall1990/sqli-pg-db:0.0.1'
     image: 'diegoall1990/linux-sqli-pg-db:0.0.1'
-    container_name: linux_postgres_sqli_eafit
+    container_name: linux_postgres_sqli_dummy
     ports:
       - "5432:5432"
     restart: always
@@ -47,11 +47,11 @@ services:
       start_period: 30s # Darle a Postgres 30 segundos para iniciar antes de empezar a chequear
     # --- FIN HEALTHCHECK ---
 
-  api:
+  api_sqli:
     build:
       context: .
       dockerfile: ./cmd/api/Dockerfile
-    container_name: golang_api_sqli
+    container_name: golang_api_sqli_dummy
     ports:
       - "9090:9090"
     # --- MODIFICAR depends_on para esperar el healthcheck ---
